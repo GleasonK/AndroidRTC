@@ -20,10 +20,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by GleasonK on 7/21/15.
- *
- * Manage Peer Connections
- *
+ * <p>
+ *     Created by GleasonK on 7/20/15 for PubNub WebRTC Signaling.
+ *     PubNub '15
+ *     Boston College '16
+ * </p>
+ * {@link me.kevingleason.androidrtc.api.PnPeerConnectionClient} is used to manage peer connections.
  */
 public class PnPeerConnectionClient {
     private int startBitrate;
@@ -96,7 +98,6 @@ public class PnPeerConnectionClient {
     private PnPeer addPeer(String id) {
         PnPeer peer = new PnPeer(id, this);
         peers.put(id, peer);
-        // endPoints[endPoint] = true;
         return peer;
     }
 
@@ -104,7 +105,6 @@ public class PnPeerConnectionClient {
         PnPeer peer = peers.get(id);
         peer.pc.close();
         return peers.remove(peer.id);
-        // endPoints[peer.endPoint] = false;
     }
 
     /**
@@ -132,8 +132,8 @@ public class PnPeerConnectionClient {
                     mRtcListener.onDebug(new PnRTCMessage(error.errorObject));
                 }
             });
-        } catch (JSONException e){  // Todo: How to handle error?
-//            e.printStackTrace();
+        } catch (JSONException e){
+            e.printStackTrace();
         }
     }
 
@@ -158,6 +158,7 @@ public class PnPeerConnectionClient {
             Log.d("CACommand","CreateAnswerCommand");
             PnPeer peer = peers.get(peerId);
             peer.setType(PnPeer.TYPE_OFFER);
+            peer.setStatus(PnPeer.STATUS_CONNECTED);
             SessionDescription sdp = new SessionDescription(
                     SessionDescription.Type.fromCanonicalForm(payload.getString("type")),
                     payload.getString("sdp")
@@ -240,7 +241,7 @@ public class PnPeerConnectionClient {
                 }
                 if (packet.has(PnRTCMessage.JSON_SDP)) {
                     if(!peer.received) {
-                        peer.received = true;
+                        peer.setReceived(true);
                         mRtcListener.onDebug(new PnRTCMessage("SDP - " + peer.toString()));
                         // Todo: reveivercb(peer);
                     }

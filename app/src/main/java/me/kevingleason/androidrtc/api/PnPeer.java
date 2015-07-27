@@ -31,7 +31,6 @@ public class PnPeer implements SdpObserver, PeerConnection.Observer {
     String status;
     boolean dialed;
     boolean received;
-//        private int endPoint;
     // Todo: Maybe attach MediaStream as private var?
 
     public PnPeer(String id, PnPeerConnectionClient pcClient) {
@@ -46,11 +45,11 @@ public class PnPeer implements SdpObserver, PeerConnection.Observer {
                 pcClient.signalingParams.pcConstraints, this);
         setStatus(STATUS_CONNECTING);
         pc.addStream(pcClient.getLocalMediaStream());
-        pcClient.mRtcListener.onStatusChanged(this);
     }
 
     public void setStatus(String status){
         this.status = status;
+        pcClient.mRtcListener.onPeerStatusChanged(this);
     }
 
     public String getStatus() {
@@ -122,9 +121,8 @@ public class PnPeer implements SdpObserver, PeerConnection.Observer {
     @Override
     public void onIceConnectionChange(PeerConnection.IceConnectionState iceConnectionState) {
         if (iceConnectionState == PeerConnection.IceConnectionState.DISCONNECTED) {
-            pcClient.removePeer(id); // Should I remove? TODO: Ponder.
+            pcClient.removePeer(id); // Should I remove? TODO: Ponder. Also, might want to Pub a disconnect.
             setStatus(STATUS_DISCONNECTED);
-            pcClient.mRtcListener.onStatusChanged(PnPeer.this);
         }
     }
 

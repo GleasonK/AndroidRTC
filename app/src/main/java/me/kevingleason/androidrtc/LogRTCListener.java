@@ -24,8 +24,8 @@ public class LogRTCListener extends PnRTCListener {
     }
 
     @Override
-    public void onStatusChanged(PnPeer peer) {
-        Log.i("RTCListener", "OnStatusChanged - " + peer.toString());
+    public void onPeerStatusChanged(PnPeer peer) {
+        Log.i("RTCListener", "OnPeerStatusChanged - " + peer.toString());
     }
 
     @Override
@@ -45,7 +45,7 @@ public class LogRTCListener extends PnRTCListener {
 
     @Override
     public void onMessage(PnPeer peer, Object message) {
-        Log.i("RTCListener", "OnMessage - " + ((JSONObject)message).toString());
+        Log.i("RTCListener", "OnMessage - " + message.toString());
     }
 
     @Override
