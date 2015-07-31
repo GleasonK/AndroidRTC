@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>PubRTC + Mobile</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+	    #vid-box video{
+		    width: 400px;
+	    }
+    </style>
+    
+</head>
+<body>
+
+	<div id="vid-box"></div>
+	
+	<form name="loginForm" id="login" action="#" onsubmit="return login(this);">
+	    <input type="text" name="username" id="username" placeholder="Pick a username!" />
+	    <input type="submit" name="login_submit" value="Log In">
+	</form>
+	
+	<form name="callForm" id="call" action="#" onsubmit="return makeCall(this);">
+		<input type="text" name="number" placeholder="Enter user to dial!" />
+		<input type="submit" value="Call"/>
+	</form>
+	
+	<p><b>To Use:</b></p>
+	<p>Can call from Android RTC app.</p>
+
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://cdn.pubnub.com/pubnub.min.js"></script>
+<script src="js/webrtc.js"></script>
+<script type="text/javascript">
+
+var video_out = document.getElementById("vid-box");
+var pub_key = "pub-c-9d0d75a5-38db-404f-ac2a-884e18b041d8";
+var sub_key = "sub-c-4e25fb64-37c7-11e5-a477-0619f8945a4f";
+var standby_suffix = "-stdby";
+var userId = "";
+
+function login(form){
+	userId = form.username.value || "Anonymous";
+	var userIdStdBy = userId + standby_suffix;
+	var pubnub = window.pubnub = PUBNUB({                          
+        publish_key   : pub_key,
+        subscribe_key : sub_key,
+        uuid: userId
+	});
+	
+	pubnub.subscribe({                                     
+        channel : userIdStdBy,
+        message : incomingCall,
+        connect: function(e){ 
+	        pubnub.state({
+				channel: userIdStdBy,
+				uuid: userId,
+				state: {"status" : "Available"},
+				callback: function(m){
+					form.username.style.background="#55ff5b"; 
+					form.login_submit.hidden="true"; 
+					console.log(JSON.stringify(m))
+				}
+			});
+	        console.log("Subscribed and ready!");  
+	    }
+    });
+    return false;
+}
+
+function phoneStart() {
+	var phone = window.phone = PHONE({
+	    number        : userId || "Anonymous", // listen on username line else Anonymous
+	    publish_key   : pub_key, // Your Pub Key
+	    subscribe_key : sub_key, // Your Sub Key
+	});	
+	phone.ready(function(){
+		console.log("Phone ON!");
+	});
+	phone.receive(function(session){
+	    session.connected(function(session) { video_out.appendChild(session.video); });
+	    session.ended(function(session) { video_out.innerHTML=''; });
+	});
+}
+
+//jsonCall.put(Constants.JSON_CALL_USER, username);
+//jsonCall.put(Constants.JSON_CALL_TIME, System.currentTimeMillis());
+function makeCall(form){
+	if (!window.pubnub) alert("Login First!");
+	
+	//Publish to their standby.
+	var callUser = form.number.value;
+	var stdByCh  = callUser + standby_suffix;
+	var msg = {"call_user":userId,"call_time":new Date().getMilliseconds()};
+	console.log("HERE" + callUser + stdByCh);
+	window.pubnub.publish({
+		channel:stdByCh,
+		message:msg,
+		callback:function(m){ console.log(m); }
+	});
+	if (!window.phone) phoneStart();
+// 	window.phone.dial(callUser); 
+	return false;
+}
+
+// {'call_user':'user','call_time':987654321}
+function incomingCall(m){
+	console.log(m);
+	setTimeout(function(){ 
+		if (!window.phone) phoneStart();
+		phone.dial(m["call_user"]); 
+	}, 2000);
+}
+
+
+</script>
+</html>
