@@ -1,4 +1,4 @@
-package me.kevingleason.androidrtc.api;
+package me.kevingleason.pnwebrtc;
 
 import android.util.Log;
 
@@ -16,7 +16,6 @@ import org.webrtc.SessionDescription;
  */
 public class PnPeer implements SdpObserver, PeerConnection.Observer {
     public static final String TAG = "PnPeer";
-    public static final String STATUS_INIT         = "INITIALIZING";
     public static final String STATUS_CONNECTING   = "CONNECTING";
     public static final String STATUS_CONNECTED    = "CONNECTED"; // TODO: Where to change status to this?
     public static final String STATUS_DISCONNECTED = "DISCONNECTED";
@@ -37,7 +36,6 @@ public class PnPeer implements SdpObserver, PeerConnection.Observer {
         Log.d(TAG, "new Peer: " + id);
         this.id = id;
         this.type = TYPE_NONE;
-        this.setStatus(STATUS_INIT);
         this.dialed = false;
         this.received = false;
         this.pcClient = pcClient;
@@ -47,7 +45,7 @@ public class PnPeer implements SdpObserver, PeerConnection.Observer {
         pc.addStream(pcClient.getLocalMediaStream());
     }
 
-    public void setStatus(String status){
+    public synchronized void setStatus(String status){
         this.status = status;
         pcClient.mRtcListener.onPeerStatusChanged(this);
     }
@@ -86,6 +84,11 @@ public class PnPeer implements SdpObserver, PeerConnection.Observer {
         return id;
     }
 
+    public void hangup(){
+        if (this.status.equals(STATUS_DISCONNECTED)) return; // Already hung up on.
+        this.pcClient.removePeer(this.id);
+        setStatus(STATUS_DISCONNECTED); // Todo: Consider <- necessary? depends when onIceConnectionChange is called.
+    }
 
     @Override
     public void onCreateSuccess(final SessionDescription sdp) {
@@ -96,7 +99,6 @@ public class PnPeer implements SdpObserver, PeerConnection.Observer {
             payload.put("sdp", sdp.description);
             pcClient.transmitMessage(id, payload);
             pc.setLocalDescription(PnPeer.this, sdp);
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -120,6 +122,7 @@ public class PnPeer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onIceConnectionChange(PeerConnection.IceConnectionState iceConnectionState) {
+        if (this.status.equals(STATUS_DISCONNECTED)) return; // Already hung up on.
         if (iceConnectionState == PeerConnection.IceConnectionState.DISCONNECTED) {
             pcClient.removePeer(id); // Should I remove? TODO: Ponder. Also, might want to Pub a disconnect.
             setStatus(STATUS_DISCONNECTED);

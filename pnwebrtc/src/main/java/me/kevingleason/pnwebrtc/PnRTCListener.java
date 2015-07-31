@@ -1,4 +1,4 @@
-package me.kevingleason.androidrtc.api;
+package me.kevingleason.pnwebrtc;
 
 import org.webrtc.MediaStream;
 
@@ -23,14 +23,20 @@ public abstract class PnRTCListener{
     public void onConnected(String userId){}
 
     /**
-     * Peer status changed. {@link me.kevingleason.androidrtc.api.PnPeer} status changed, can be
+     * Peer status changed. {@link PnPeer} status changed, can be
      * INITIALIZING, CONNECTING, CONNECTED, or DISCONNECTED.
      * @param peer The peer object, can use to check peer.getStatus()
      */
     public void onPeerStatusChanged(PnPeer peer){}
 
+    /**TODO: Is this different than onPeerStatusChanged == DISCONNECTED?
+     * Called when a hangup occurs.
+     * @param peer The peer who was hung up on, or who hung up on you
+     */
+    public void onPeerConnectionClosed(PnPeer peer){}
+
     /**
-     * Called in {@link me.kevingleason.androidrtc.api.PnPeerConnectionClient} when setLocalStream
+     * Called in {@link PnPeerConnectionClient} when setLocalStream
      * is invoked.
      * @param localStream The users local stream from Android's front or back camera.
      */
@@ -38,7 +44,7 @@ public abstract class PnRTCListener{
 
     /**
      * Called when a remote stream is added in the {@link org.webrtc.PeerConnection.Observer}
-     * in {@link me.kevingleason.androidrtc.api.PnPeer}.
+     * in {@link PnPeer}.
      * @param remoteStream The remote stream that was added
      * @param peer The peer that added the remote stream
      *             Todo: Maybe not the right peer?
@@ -47,7 +53,7 @@ public abstract class PnRTCListener{
 
     /**
      * Called in the {@link org.webrtc.PeerConnection.Observer} implemented
-     * by {@link me.kevingleason.androidrtc.api.PnPeer}.
+     * by {@link PnPeer}.
      * @param remoteStream The stream that was removed by your peer
      * @param peer The peer that removed the stream.
      */
@@ -62,7 +68,7 @@ public abstract class PnRTCListener{
 
     /**
      * A helpful debugging callback for testing and developing your app.
-     * @param message The {@link me.kevingleason.androidrtc.api.PnRTCMessage} debug message.
+     * @param message The {@link PnRTCMessage} debug message.
      */
     public void onDebug(PnRTCMessage message){}
 }

@@ -1,15 +1,15 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 21
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "me.kevingleason.androidrtc"
-        minSdkVersion 17
+        applicationId "me.kevingleason.pnwebrtc"
+        minSdkVersion 15
         targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+        versionName "1.0.0" //project.VERSION_NAME
+        versionCode 1 //Integer.parseInt(project.VERSION_CODE)
     }
     buildTypes {
         release {
@@ -19,15 +19,10 @@ android {
     }
 }
 
-repositories {
-    flatDir {
-        dirs 'libs'
-    }
-}
-
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.pubnub:pubnub-android:3.7.4'
     compile 'io.pristine:libjingle:9127@aar'
-    compile project(':pnwebrtc')
+    compile 'com.pubnub:pubnub-android:3.7.4'
 }
+
+//apply from: '../maven_push.gradle'

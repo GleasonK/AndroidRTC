@@ -1,4 +1,4 @@
-package me.kevingleason.androidrtc.api;
+package me.kevingleason.pnwebrtc;
 
 import android.app.Activity;
 
@@ -73,8 +73,24 @@ public class PnRTCClient {
         this.pcClient.setRTCListener(listener);
     }
 
+    public void setMaxConnections(int max){
+        this.pcClient.MAX_CONNECTIONS = max;
+    }
+
+    /**
+     * Subscribe to a channel using PubNub to listen for calls.
+     * @param channel The channel to listen on, your "phone number"
+     */
     public void listenOn(String channel){
-        this.pcClient.connect(channel);
+        this.pcClient.listenOn(channel);
+    }
+
+    /**
+     * Connect with another user by their ID.
+     * @param userId The user to establish a WebRTC connection with
+     */
+    public void connect(String userId){
+        this.pcClient.connect(userId);
     }
 
     private static String generateRandomNumber(){
@@ -83,6 +99,33 @@ public class PnRTCClient {
         while (areaCode.length() < 3) areaCode += "0";
         while (digits.length()   < 4) digits   += "0";
         return areaCode + "-" + digits;
+    }
+
+// Use these in PnRTCPhone wrapper object.
+//    /**
+//     * Call this method in Activity.onPause()
+//     */
+//    public void onPause() {
+//        if(videoSource != null) videoSource.stop();
+//    }
+//
+//    /**
+//     * Call this method in Activity.onResume()
+//     */
+//    public void onResume() {
+//        if(videoSource != null) videoSource.restart();
+//    }
+
+    /**
+     * Call this method in Activity.onDestroy()
+     */
+    public void onDestroy() {
+        this.pcClient.closeAllConnections();
+//        pcClient.pcFactory.dispose();
+        this.mPubNub.unsubscribeAll();
+//        if (this.pcClient.getLocalMediaStream() != null){
+//            this.pcClient.getLocalMediaStream().dispose();
+//        }
     }
 
 }

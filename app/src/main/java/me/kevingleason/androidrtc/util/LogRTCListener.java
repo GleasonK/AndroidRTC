@@ -1,13 +1,12 @@
-package me.kevingleason.androidrtc;
+package me.kevingleason.androidrtc.util;
 
 import android.util.Log;
 
-import org.json.JSONObject;
 import org.webrtc.MediaStream;
 
-import me.kevingleason.androidrtc.api.PnPeer;
-import me.kevingleason.androidrtc.api.PnRTCListener;
-import me.kevingleason.androidrtc.api.PnRTCMessage;
+import me.kevingleason.pnwebrtc.PnPeer;
+import me.kevingleason.pnwebrtc.PnRTCListener;
+import me.kevingleason.pnwebrtc.PnRTCMessage;
 
 /**
  * Created by GleasonK on 7/23/15.
@@ -26,6 +25,11 @@ public class LogRTCListener extends PnRTCListener {
     @Override
     public void onPeerStatusChanged(PnPeer peer) {
         Log.i("RTCListener", "OnPeerStatusChanged - " + peer.toString());
+    }
+
+    @Override
+    public void onPeerConnectionClosed(PnPeer peer) {
+        Log.i("RTCListener", "OnPeerConnectionClosed - " + peer.toString());
     }
 
     @Override

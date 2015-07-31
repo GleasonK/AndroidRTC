@@ -1,4 +1,4 @@
-package me.kevingleason.androidrtc.api;
+package me.kevingleason.pnwebrtc;
 
 import org.json.JSONException;
 import org.json.JSONObject;
