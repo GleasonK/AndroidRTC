@@ -272,14 +272,15 @@ public class PnPeerConnectionClient {
         public static final String TRIGGER = PnRTCMessage.JSON_USERMSG;
         public void execute(String peerId, JSONObject payload) throws JSONException {
             Log.d("PnUserMessage","AddIceCandidateAction");
+            JSONObject msgJson = payload.getJSONObject(PnRTCMessage.JSON_USERMSG);
             PnPeer peer = peers.get(peerId);
-            mRtcListener.onMessage(peer, payload);
+            mRtcListener.onMessage(peer, msgJson);
         }
     }
 
 
     /**
-     * @param userId Your id.
+     * @param userId Your id. Used to tag the message before publishing it to another user.
      * @return
      */
     public static JSONObject generateHangupPacket(String userId){
@@ -287,6 +288,28 @@ public class PnPeerConnectionClient {
         try {
             JSONObject packet = new JSONObject();
             packet.put(PnRTCMessage.JSON_HANGUP, true);
+            json.put(PnRTCMessage.JSON_PACKET, packet);
+            json.put(PnRTCMessage.JSON_ID, ""); //Todo: session id, unused in js SDK?
+            json.put(PnRTCMessage.JSON_NUMBER, userId);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    /**
+     * Static method to generate the proper JSON for a user message. Use this when you don't have
+     *   a {@link me.kevingleason.pnwebrtc.PnRTCClient} instantiated. Simply send a publish with the
+     *   returned JSONObject to the ID that a user is subscribed to.
+     * @param userId Your UserID, needed to tag the message
+     * @param message The message you with to send some other user
+     * @return JSONObject properly formatted for the PubNub WebRTC API
+     */
+    public static JSONObject generateUserMessage(String userId, JSONObject message){
+        JSONObject json = new JSONObject();
+        try {
+            JSONObject packet = new JSONObject();
+            packet.put(PnRTCMessage.JSON_USERMSG, message);
             json.put(PnRTCMessage.JSON_PACKET, packet);
             json.put(PnRTCMessage.JSON_ID, ""); //Todo: session id, unused in js SDK?
             json.put(PnRTCMessage.JSON_NUMBER, userId);

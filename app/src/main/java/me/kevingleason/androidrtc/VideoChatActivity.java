@@ -1,13 +1,22 @@
 package me.kevingleason.androidrtc;
 
 import android.app.Activity;
+import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
 import org.webrtc.MediaConstraints;
@@ -19,6 +28,11 @@ import org.webrtc.VideoRendererGui;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import me.kevingleason.androidrtc.adapters.ChatAdapter;
+import me.kevingleason.androidrtc.adt.ChatMessage;
 import me.kevingleason.androidrtc.util.Constants;
 import me.kevingleason.androidrtc.util.LogRTCListener;
 import me.kevingleason.pnwebrtc.PnPeer;
@@ -28,7 +42,7 @@ import me.kevingleason.pnwebrtc.PnRTCClient;
  * This chat will begin/subscribe to a video chat.
  * REQUIRED: The intent must contain a
  */
-public class VideoChatActivity extends Activity {
+public class VideoChatActivity extends ListActivity {
     public static final String VIDEO_TRACK_ID = "videoPN";
     public static final String AUDIO_TRACK_ID = "audioPN";
     public static final String LOCAL_MEDIA_STREAM_ID = "localStreamPN";
@@ -38,8 +52,13 @@ public class VideoChatActivity extends Activity {
     private VideoRenderer.Callbacks localRender;
     private VideoRenderer.Callbacks remoteRender;
     private GLSurfaceView videoView;
+    private EditText mChatEditText;
+    private ListView mChatList;
+    private ChatAdapter mChatAdapter;
 
     private String username;
+    private boolean backPressed = false;
+    private Thread  backPressedThread = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +66,7 @@ public class VideoChatActivity extends Activity {
         setContentView(R.layout.activity_video_chat);
 
         Bundle extras = getIntent().getExtras();
-        if (extras==null || !extras.containsKey(Constants.USER_NAME)){
+        if (extras == null || !extras.containsKey(Constants.USER_NAME)) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             Toast.makeText(this, "Need to pass username to VideoChatActivity in intent extras (Constants.USER_NAME).",
@@ -56,6 +75,14 @@ public class VideoChatActivity extends Activity {
             return;
         }
         this.username = extras.getString(Constants.USER_NAME, "");
+        this.mChatList = getListView();
+        this.mChatEditText = (EditText) findViewById(R.id.chat_input);
+
+        // Set up the List View for chatting
+        List<ChatMessage> ll = new LinkedList<ChatMessage>();
+        mChatAdapter = new ChatAdapter(this, ll);
+        mChatList.setAdapter(mChatAdapter);
+
 
         // First, we initiate the PeerConnectionFactory with our application context and some options.
         PeerConnectionFactory.initializeAndroidGlobals(
@@ -72,7 +99,7 @@ public class VideoChatActivity extends Activity {
         // Returns the number of cams & front/back face device name
         int camNumber = VideoCapturerAndroid.getDeviceCount();
         String frontFacingCam = VideoCapturerAndroid.getNameOfFrontFacingDevice();
-        String backFacingCam  = VideoCapturerAndroid.getNameOfBackFacingDevice();
+        String backFacingCam = VideoCapturerAndroid.getNameOfBackFacingDevice();
 
         // Creates a VideoCapturerAndroid instance for the device name
         VideoCapturerAndroid capturer = VideoCapturerAndroid.create(frontFacingCam);
@@ -95,7 +122,7 @@ public class VideoChatActivity extends Activity {
         // Now that VideoRendererGui is ready, we can get our VideoRenderer.
         // IN THIS ORDER. Effects which is on top or bottom
         remoteRender = VideoRendererGui.create(0, 0, 100, 100, VideoRendererGui.ScalingType.SCALE_ASPECT_FILL, false);
-        localRender  = VideoRendererGui.create(0, 0, 100, 100, VideoRendererGui.ScalingType.SCALE_ASPECT_FILL, true);
+        localRender = VideoRendererGui.create(0, 0, 100, 100, VideoRendererGui.ScalingType.SCALE_ASPECT_FILL, true);
 
         MediaConstraints sdpMediaConstraints = new MediaConstraints();
         sdpMediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
@@ -122,8 +149,8 @@ public class VideoChatActivity extends Activity {
 
         // If the intent contains a number to dial, call it now that you are connected.
         //  Else, remain listening for a call.
-        if (extras.containsKey(Constants.CALL_USER)){
-            String callUser = extras.getString(Constants.CALL_USER,"");
+        if (extras.containsKey(Constants.CALL_USER)) {
+            String callUser = extras.getString(Constants.CALL_USER, "");
             connectToUser(callUser);
         }
     }
@@ -171,13 +198,69 @@ public class VideoChatActivity extends Activity {
         if (this.localVideoSource != null) {
             this.localVideoSource.stop();
         }
-        if (this.pnRTCClient != null){
+        if (this.pnRTCClient != null) {
             this.pnRTCClient.onDestroy();
         }
     }
 
-    public void connectToUser(String user){
+    @Override
+    public void onBackPressed() {
+        if (!this.backPressed){
+            this.backPressed = true;
+            Toast.makeText(this,"Press back again to end.",Toast.LENGTH_SHORT).show();
+            this.backPressedThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(5000);
+                        backPressed = false;
+                    } catch (InterruptedException e){ Log.d("VCA-oBP","Successfully interrupted"); }
+                }
+            });
+            this.backPressedThread.start();
+            return;
+        }
+        if (this.backPressedThread != null)
+            this.backPressedThread.interrupt();
+        super.onBackPressed();
+    }
+
+    public void connectToUser(String user) {
         this.pnRTCClient.connect(user);
+    }
+
+    public void hangup(View view) {
+        this.pnRTCClient.closeAllConnections();
+        endCall();
+    }
+
+    private void endCall() {
+        startActivity(new Intent(VideoChatActivity.this, MainActivity.class));
+        finish();
+    }
+
+
+    public void sendMessage(View view) {
+        String message = mChatEditText.getText().toString();
+        if (message.equals("")) return; // Return if empty
+        ChatMessage chatMsg = new ChatMessage(this.username, message, System.currentTimeMillis());
+        mChatAdapter.addMessage(chatMsg);
+        JSONObject messageJSON = new JSONObject();
+        try {
+            messageJSON.put(Constants.JSON_MSG_UUID, chatMsg.getSender());
+            messageJSON.put(Constants.JSON_MSG, chatMsg.getMessage());
+            messageJSON.put(Constants.JSON_TIME, chatMsg.getTimeStamp());
+            this.pnRTCClient.transmitAll(messageJSON);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        // Hide keyboard when you send a message.
+        View focusView = this.getCurrentFocus();
+        if (focusView != null) {
+            InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+        mChatEditText.setText("");
     }
 
     /**
@@ -213,6 +296,35 @@ public class VideoChatActivity extends Activity {
                     catch (Exception e){ e.printStackTrace(); }
                 }
             });
+        }
+
+        @Override
+        public void onMessage(PnPeer peer, Object message) {
+            super.onMessage(peer, message);  // Will log values
+            if (!(message instanceof JSONObject)) return; //Ignore if not JSONObject
+            JSONObject jsonMsg = (JSONObject) message;
+            try {
+                String uuid = jsonMsg.getString(Constants.JSON_MSG_UUID);
+                String msg  = jsonMsg.getString(Constants.JSON_MSG);
+                long   time = jsonMsg.getLong(Constants.JSON_TIME);
+                final ChatMessage chatMsg = new ChatMessage(uuid, msg, time);
+                VideoChatActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mChatAdapter.addMessage(chatMsg);
+                    }
+                });
+            } catch (JSONException e){
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onPeerConnectionClosed(PnPeer peer) {
+            super.onPeerConnectionClosed(peer);
+            Intent intent = new Intent(VideoChatActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
         }
     }
 }

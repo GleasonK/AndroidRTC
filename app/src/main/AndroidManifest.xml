@@ -38,7 +38,9 @@
         <activity
             android:name="me.kevingleason.androidrtc.VideoChatActivity"
             android:label="@string/title_activity_video_chat"
-            android:parentActivityName="me.kevingleason.androidrtc.MainActivity" >
+            android:parentActivityName="me.kevingleason.androidrtc.MainActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="me.kevingleason.androidrtc.MainActivity" />

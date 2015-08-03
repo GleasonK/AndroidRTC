@@ -20,7 +20,14 @@ public class Constants {
     public static final String JSON_OCCUPANCY = "occupancy";
     public static final String JSON_STATUS    = "status";
 
+    // JSON for user messages
+    public static final String JSON_USER_MSG  = "user_message";
+    public static final String JSON_MSG_UUID  = "msg_uuid";
+    public static final String JSON_MSG       = "msg_message";
+    public static final String JSON_TIME      = "msg_timestamp";
+
     public static final String STATUS_AVAILABLE = "Available";
     public static final String STATUS_OFFLINE   = "Offline";
     public static final String STATUS_BUSY      = "Busy";
+
 }

@@ -4,8 +4,13 @@ import android.app.Activity;
 
 import com.pubnub.api.Pubnub;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
+
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -91,6 +96,31 @@ public class PnRTCClient {
      */
     public void connect(String userId){
         this.pcClient.connect(userId);
+    }
+
+    public void closeConnection(String userId){
+        this.pcClient.closeConnection(userId);
+    }
+
+    public void closeAllConnections(){
+        this.pcClient.closeAllConnections();
+    }
+
+    public void transmitUser(String userId, JSONObject message){
+        JSONObject usrMsgJson = new JSONObject();
+        try {
+            usrMsgJson.put(PnRTCMessage.JSON_USERMSG, message);
+            this.pcClient.transmitMessage(userId, usrMsgJson);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void transmitAll(JSONObject message){
+        List<PnPeer> peerList = this.pcClient.getPeers();
+        for(PnPeer p : peerList){
+            transmitUser(p.getId(), message);
+        }
     }
 
     private static String generateRandomNumber(){

@@ -77,6 +77,7 @@ public class HistoryAdapter extends ArrayAdapter<HistoryItem> {
         }
         holder.user.setText(hItem.getUser().getUserId());
         holder.time.setText(formatTimeStamp(hItem.getTimeStamp()));
+        holder.status.setText(hItem.getUser().getStatus());
         if (hItem.getUser().getStatus().equals(Constants.STATUS_OFFLINE))
             getUserStatus(hItem.getUser(), holder.status);
         holder.callBtn.setOnClickListener(new View.OnClickListener() {

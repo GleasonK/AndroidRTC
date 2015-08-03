@@ -24,10 +24,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import me.kevingleason.androidrtc.adapters.HistoryAdapter;
-import me.kevingleason.androidrtc.adt.ChatUser;
 import me.kevingleason.androidrtc.adt.HistoryItem;
 import me.kevingleason.androidrtc.util.Constants;
-import me.kevingleason.pnwebrtc.PnRTCMessage;
 
 
 public class MainActivity extends ListActivity {

@@ -8,4 +8,62 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent" />
 
+    <LinearLayout
+        android:id="@+id/call_chat_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:background="#64000000"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/chat_input"
+            android:textColor="#FFF"
+            android:backgroundTint="@color/pn_blue"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="4"
+            android:textColorHint="@color/white"
+            android:hint="Enter Message..."/>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent">
+
+            <ImageButton
+                android:layout_centerHorizontal="true"
+                android:contentDescription="Send"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/round_button_send"
+                android:src="@drawable/ic_action_send_now"
+                android:onClick="sendMessage" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:minWidth="300dp"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@id/call_chat_box"
+        android:stackFromBottom="true"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:src="@drawable/ic_action_end_call"
+        android:background="@drawable/round_button"
+        android:onClick="hangup"
+        />
+
 </RelativeLayout>
