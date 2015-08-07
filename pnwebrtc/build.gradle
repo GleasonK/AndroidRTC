@@ -8,8 +8,8 @@ android {
         applicationId "me.kevingleason.pnwebrtc"
         minSdkVersion 15
         targetSdkVersion 21
-        versionName "1.0.0" //project.VERSION_NAME
-        versionCode 1 //Integer.parseInt(project.VERSION_CODE)
+        versionName project.VERSION_NAME
+        versionCode Integer.parseInt(project.VERSION_CODE)
     }
     buildTypes {
         release {

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -21,6 +23,7 @@ import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
+import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
 import org.webrtc.VideoCapturerAndroid;
 import org.webrtc.VideoRenderer;
@@ -55,6 +58,7 @@ public class VideoChatActivity extends ListActivity {
     private EditText mChatEditText;
     private ListView mChatList;
     private ChatAdapter mChatAdapter;
+    private TextView mCallStatus;
 
     private String username;
     private boolean backPressed = false;
@@ -74,9 +78,10 @@ public class VideoChatActivity extends ListActivity {
             finish();
             return;
         }
-        this.username = extras.getString(Constants.USER_NAME, "");
-        this.mChatList = getListView();
+        this.username      = extras.getString(Constants.USER_NAME, "");
+        this.mChatList     = getListView();
         this.mChatEditText = (EditText) findViewById(R.id.chat_input);
+        this.mCallStatus   = (TextView) findViewById(R.id.call_status);
 
         // Set up the List View for chatting
         List<ChatMessage> ll = new LinkedList<ChatMessage>();
@@ -93,8 +98,7 @@ public class VideoChatActivity extends ListActivity {
                 null); // Render EGL Context
 
         PeerConnectionFactory pcFactory = new PeerConnectionFactory();
-
-        this.pnRTCClient = new PnRTCClient(this, Constants.PUB_KEY, Constants.SUB_KEY, this.username);
+        this.pnRTCClient = new PnRTCClient(Constants.PUB_KEY, Constants.SUB_KEY, this.username);
 
         // Returns the number of cams & front/back face device name
         int camNumber = VideoCapturerAndroid.getDeviceCount();
@@ -124,10 +128,6 @@ public class VideoChatActivity extends ListActivity {
         remoteRender = VideoRendererGui.create(0, 0, 100, 100, VideoRendererGui.ScalingType.SCALE_ASPECT_FILL, false);
         localRender = VideoRendererGui.create(0, 0, 100, 100, VideoRendererGui.ScalingType.SCALE_ASPECT_FILL, true);
 
-        MediaConstraints sdpMediaConstraints = new MediaConstraints();
-        sdpMediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
-        sdpMediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
-
         // We start out with an empty MediaStream object, created with help from our PeerConnectionFactory
         //  Note that LOCAL_MEDIA_STREAM_ID can be any string
         MediaStream mediaStream = pcFactory.createLocalMediaStream(LOCAL_MEDIA_STREAM_ID);
@@ -145,7 +145,7 @@ public class VideoChatActivity extends ListActivity {
 
         // Listen on a channel. This is your "phone number," also set the max chat users.
         this.pnRTCClient.listenOn("Kevin");
-        this.pnRTCClient.setMaxConnections(2);
+        this.pnRTCClient.setMaxConnections(1);
 
         // If the intent contains a number to dial, call it now that you are connected.
         //  Else, remain listening for a call.
@@ -182,7 +182,6 @@ public class VideoChatActivity extends ListActivity {
         super.onPause();
         this.videoView.onPause();
         this.localVideoSource.stop();
-
     }
 
     @Override
@@ -289,9 +288,10 @@ public class VideoChatActivity extends ListActivity {
                     Toast.makeText(VideoChatActivity.this,"Connected to " + peer.getId(), Toast.LENGTH_SHORT).show();
                     try {
                         if(remoteStream.audioTracks.size()==0 || remoteStream.videoTracks.size()==0) return;
+                        mCallStatus.setVisibility(View.GONE);
                         remoteStream.videoTracks.get(0).addRenderer(new VideoRenderer(remoteRender));
                         VideoRendererGui.update(remoteRender, 0, 0, 100, 100, VideoRendererGui.ScalingType.SCALE_ASPECT_FILL, false);
-                        VideoRendererGui.update(localRender, 72, 72, 25, 25, VideoRendererGui.ScalingType.SCALE_ASPECT_FIT, true);
+                        VideoRendererGui.update(localRender, 72, 65, 25, 25, VideoRendererGui.ScalingType.SCALE_ASPECT_FIT, true);
                     }
                     catch (Exception e){ e.printStackTrace(); }
                 }
@@ -322,6 +322,14 @@ public class VideoChatActivity extends ListActivity {
         @Override
         public void onPeerConnectionClosed(PnPeer peer) {
             super.onPeerConnectionClosed(peer);
+            VideoChatActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mCallStatus.setText("Call Ended...");
+                    mCallStatus.setVisibility(View.VISIBLE);
+                }
+            });
+            try {Thread.sleep(1500);} catch (InterruptedException e){e.printStackTrace();}
             Intent intent = new Intent(VideoChatActivity.this, MainActivity.class);
             startActivity(intent);
             finish();

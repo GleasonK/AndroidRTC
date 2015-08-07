@@ -29,7 +29,6 @@ import me.kevingleason.androidrtc.util.Constants;
 
 
 public class MainActivity extends ListActivity {
-
     private SharedPreferences mSharedPreferences;
     private String username;
     private String stdByChannel;
@@ -100,13 +99,29 @@ public class MainActivity extends ListActivity {
         }
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if(this.mPubNub==null){
+            initPubNub();
+        } else {
+            subscribeStdBy();
+        }
+    }
+
     /**
      * Subscribe to standby channel so that it doesn't interfere with the WebRTC Signaling.
      */
     public void initPubNub(){
-        System.out.println("HERE!");
         this.mPubNub  = new Pubnub(Constants.PUB_KEY, Constants.SUB_KEY);
         this.mPubNub.setUUID(this.username);
+        subscribeStdBy();
+    }
+
+    /**
+     * Subscribe to standby channel
+     */
+    private void subscribeStdBy(){
         try {
             this.mPubNub.subscribe(this.stdByChannel, new Callback() {
                 @Override

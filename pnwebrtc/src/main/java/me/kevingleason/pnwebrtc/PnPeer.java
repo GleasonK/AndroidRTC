@@ -12,7 +12,14 @@ import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
 
 /**
- * Created by GleasonK on 7/22/15.
+ * <h1>PubNub Peer object to hold information on {@link org.webrtc.PeerConnection}</h1>
+ * <pre>
+ * Author:  Kevin Gleason - Boston College '16
+ * File:    PnPeer.java
+ * Date:    7/22/15
+ * Use:     Store information about various Peer Connections
+ * &copy; 2009 - 2015 PubNub, Inc.
+ * </pre>
  */
 public class PnPeer implements SdpObserver, PeerConnection.Observer {
     public static final String TAG = "PnPeer";

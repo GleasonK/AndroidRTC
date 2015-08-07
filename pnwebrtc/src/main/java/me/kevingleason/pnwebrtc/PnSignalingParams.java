@@ -7,11 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by GleasonK on 7/20/15.
- * Object holding the signaling parameters of a WebRTC PeerConnection.
- * IceServers allow Trickling, so they are not final.
+ * <h1>Define {@link org.webrtc.MediaConstraints} and {@link org.webrtc.PeerConnection.IceServer} for WebRTC PeerConnections</h1>
+ * <pre>
+ * Author:  Kevin Gleason - Boston College '16
+ * File:    PnSignalingParams.java
+ * Date:    7/20/15
+ * Use:     Hold the signaling parameters of a WebRTC PeerConnection
+ * &copy; 2009 - 2015 PubNub, Inc.
+ * </pre>
+ * <p>IceServers allow Trickling, so they are not final.</p>
  *
- * Todo: Consider removing null parameters.
  */
 public class PnSignalingParams {
     public List<PeerConnection.IceServer> iceServers;
@@ -56,6 +61,16 @@ public class PnSignalingParams {
         this.videoConstraints = defaultVideoConstraints();
         this.audioConstraints = defaultAudioConstraints();
         addIceServers(iceServers);
+    }
+
+    /**
+     * Default media params and ICE servers.
+     */
+    public PnSignalingParams() {
+        this.iceServers       = defaultIceServers();
+        this.pcConstraints    = defaultPcConstraints();
+        this.videoConstraints = defaultVideoConstraints();
+        this.audioConstraints = defaultAudioConstraints();
     }
 
     /**

@@ -23,11 +23,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>
- *     Created by GleasonK on 7/20/15 for PubNub WebRTC Signaling.
- *     PubNub '15
- *     Boston College '16
- * </p>
+ * <h1>PeerConnection manager for {@link me.kevingleason.pnwebrtc.PnRTCClient}</h1>
+ * <pre>
+ * Author:  Kevin Gleason - Boston College '16
+ * File:    PnPeerConnectionClient.java
+ * Date:    7/20/15
+ * Use:     WebRTC PeerConnection Manager
+ * &copy; 2009 - 2015 PubNub, Inc.
+ * </pre>
+ *
  * {@link PnPeerConnectionClient} is used to manage peer connections.
  */
 public class PnPeerConnectionClient {

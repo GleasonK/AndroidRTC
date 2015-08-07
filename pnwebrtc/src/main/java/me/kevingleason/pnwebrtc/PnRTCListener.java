@@ -2,15 +2,21 @@ package me.kevingleason.pnwebrtc;
 
 import org.webrtc.MediaStream;
 
-/**Todo: Think about parameters.
+/**
+ * <h1>Callback listener for various WebRTC and {@link org.webrtc.PeerConnection.Observer} events.</h1>
+ * <pre>
+ * Author:  Kevin Gleason - Boston College '16
+ * File:    PnRTCListener.java
+ * Date:    7/20/15
+ * Use:     Callback listener for various WebRTC events
+ * &copy; 2009 - 2015 PubNub, Inc.
+ * </pre>
+ * <h2>About this class:</h2>
  * <p>
- *     Created by GleasonK on 7/20/15 for PubNub WebRTC Signaling.
- *     PubNub '15
- *     Boston College '16
+ *     Implement this interface to be notified of WebRTC events.
+ *     It is an abstract class with default behaviors of doing nothing.
+ *     Use a PnRTCListener to implement the various callbacks of your WebRTC application.
  * </p>
- * Implement this interface to be notified of WebRTC events.
- * It is an abstract class with default behaviors of doing nothing.
- * Use a PnRTCListener to implement the various callbacks of your WebRTC application.
  */
 public abstract class PnRTCListener{
     public void onCallReady(String callId){} // TODO: Maybe not needed?
@@ -24,7 +30,7 @@ public abstract class PnRTCListener{
 
     /**
      * Peer status changed. {@link PnPeer} status changed, can be
-     * INITIALIZING, CONNECTING, CONNECTED, or DISCONNECTED.
+     * CONNECTING, CONNECTED, or DISCONNECTED.
      * @param peer The peer object, can use to check peer.getStatus()
      */
     public void onPeerStatusChanged(PnPeer peer){}

@@ -9,7 +9,7 @@ import me.kevingleason.pnwebrtc.PnRTCListener;
 import me.kevingleason.pnwebrtc.PnRTCMessage;
 
 /**
- * Created by GleasonK on 7/23/15.
+ * <p>Created by GleasonK on 7/23/15.</p>
  */
 public class LogRTCListener extends PnRTCListener {
     @Override
