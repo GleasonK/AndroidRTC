@@ -4,6 +4,7 @@
     <title>PubRTC + Mobile</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
     <style>
 	    #vid-box video{
 		    width: 400px;
@@ -12,24 +13,37 @@
     
 </head>
 <body>
-
-	<div id="vid-box"></div>
-	
-	<form name="loginForm" id="login" action="#" onsubmit="return login(this);">
-	    <input type="text" name="username" id="username" placeholder="Pick a username!" />
-	    <input type="submit" name="login_submit" value="Log In">
-	</form>
-	
-	<form name="callForm" id="call" action="#" onsubmit="return makeCall(this);">
-		<input type="text" name="number" placeholder="Enter user to dial!" />
-		<input type="submit" value="Call"/>
-	</form>
-	<button onclick="end()">End</button><br>
-	<input id="chat-msg" placeholder="Enter a message..."/><button onclick="sendMessage()">Send</button>
-	<div id="chat-box"></div>
-	<p><b>To Use:</b></p>
-	<p>Can call from Android RTC app.</p>
-
+	<div id="header">
+		<h1>AndroidRTC - Built With PnWebRTC</h1>
+		<p id="subtitle">
+			<i>This web interface can receive and send calls to the <a href="https://github.com/GleasonK/AndroidRTC/" target="_blank">Android RTC</a> app.</i>
+			[ <a href="https://github.com/GleasonK/android-webrtc-tutorial" target="_blank">Github</a> | <a href="https://github.com/GleasonK/AndroidRTC" target="_blank">Tutorial</a> ]</i>
+		</p>
+	</div>
+	<div id="rtc-demo">
+		<div id="vid-box">[<i>Video will appear here</i>]</div>
+		<form name="loginForm" id="login" action="#" onsubmit="return login(this);">
+		    <label for="username">User Name:</label>
+		    <input type="text" name="username" id="username" placeholder="Pick a username!"  size="32"/>
+		    <input type="submit" name="login_submit" value="Log In">
+		</form>
+		
+		<form name="callForm" id="call" action="#" onsubmit="return makeCall(this);">
+			<label for="number">Make Call:</label>
+			<input type="text" name="number" placeholder="Enter user to dial!" size="32"/>
+			<input type="submit" value="Call"/>
+		</form>
+		<button onclick="end()">End Call</button><br><br>
+		<div id="chat" >
+			Peer Chat:
+			<input type="text" id="chat-msg" placeholder="Enter a message..." size="32" style="margin:2px;" />
+			<button onclick="sendMessage()">Send</button>
+			<div id="chat-box">[<i>Chat will appear here</i>]</div>
+		</div>
+		<p><b>Instructions:</b></p>
+		<p><span class="step-num">1.</span><br>Log in to a username. Box will turn green when a connection is established.</p>
+		<p><span class="step-num">2.</span><br>Either call your AndroidRTC username, or call your web username from the App.</p>
+	</div>
 </body>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
@@ -63,8 +77,8 @@ function login(form){
 				uuid: userId,
 				state: {"status" : "Available"},
 				callback: function(m){
-					form.username.style.background="#55ff5b"; 
-					form.login_submit.hidden="true"; 
+					form.login_submit.disabled = true;
+					form.username.style.background="#55ff5b";
 					console.log(JSON.stringify(m))
 				}
 			});
@@ -85,7 +99,10 @@ function phoneStart() {
 	});
 	phone.receive(function(session){
 		session.message(message);
-	    session.connected(function(session) { video_out.appendChild(session.video); });
+	    session.connected(function(session) { 
+	    	video_out.innerHTML="";
+	    	video_out.appendChild(session.video);  
+	    });
 	    session.ended(function(session) { video_out.innerHTML=''; });
 	});
 }
@@ -112,7 +129,7 @@ function makeCall(form){
 
 // {'call_user':'user','call_time':987654321}
 function incomingCall(m){
-	console.log(m);
+	video_out.innerHTML="Connecting...";
 	setTimeout(function(){ 
 		if (!window.phone) phoneStart();
 		phone.dial(m["call_user"]); 
@@ -129,7 +146,7 @@ function message( session, message ) {
 
 function add_chat(number, message){
 	console.log(number + ": " + message);
-	chat_box.innerHTML += number+" ("+ formatTime(message["msg_timestamp"]) +"): " + message["msg_message"] + "<br>";
+	chat_box.innerHTML = "<p>" + number+" ("+ formatTime(message["msg_timestamp"]) +"): " + message["msg_message"] + "</p>" + chat_box.innerHTML;
 }
 
 function sendMessage(){
