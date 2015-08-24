@@ -94,7 +94,7 @@ public class PnPeer implements SdpObserver, PeerConnection.Observer {
     public void hangup(){
         if (this.status.equals(STATUS_DISCONNECTED)) return; // Already hung up on.
         this.pcClient.removePeer(this.id);
-        setStatus(STATUS_DISCONNECTED); // Todo: Consider <- necessary? depends when onIceConnectionChange is called.
+        setStatus(STATUS_DISCONNECTED);
     }
 
     @Override
@@ -131,9 +131,15 @@ public class PnPeer implements SdpObserver, PeerConnection.Observer {
     public void onIceConnectionChange(PeerConnection.IceConnectionState iceConnectionState) {
         if (this.status.equals(STATUS_DISCONNECTED)) return; // Already hung up on.
         if (iceConnectionState == PeerConnection.IceConnectionState.DISCONNECTED) {
-            pcClient.removePeer(id); // Should I remove? TODO: Ponder. Also, might want to Pub a disconnect.
+            pcClient.removePeer(id); // TODO: Ponder. Also, might want to Pub a disconnect.
             setStatus(STATUS_DISCONNECTED);
         }
+    }
+
+    // Todo: Look into what this should be used for
+    @Override
+    public void onIceConnectionReceivingChange(boolean iceConnectionReceivingChange){
+
     }
 
     @Override

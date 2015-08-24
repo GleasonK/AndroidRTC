@@ -25,6 +25,7 @@ import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
+import org.webrtc.VideoCapturer;
 import org.webrtc.VideoCapturerAndroid;
 import org.webrtc.VideoRenderer;
 import org.webrtc.VideoRendererGui;
@@ -106,7 +107,7 @@ public class VideoChatActivity extends ListActivity {
         String backFacingCam = VideoCapturerAndroid.getNameOfBackFacingDevice();
 
         // Creates a VideoCapturerAndroid instance for the device name
-        VideoCapturerAndroid capturer = VideoCapturerAndroid.create(frontFacingCam);
+        VideoCapturer capturer = VideoCapturerAndroid.create(frontFacingCam);
 
         // First create a Video Source, then we can make a Video Track
         localVideoSource = pcFactory.createVideoSource(capturer, this.pnRTCClient.videoConstraints());

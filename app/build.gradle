@@ -28,6 +28,6 @@ repositories {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.pubnub:pubnub-android:3.7.4'
-    compile 'io.pristine:libjingle:9127@aar'
+    compile 'io.pristine:libjingle:9694@aar'
     compile project(':pnwebrtc')
 }
