@@ -56,11 +56,11 @@ public class PnSignalingParams {
      * @param iceServers
      */
     public PnSignalingParams(List<PeerConnection.IceServer> iceServers) {
-        this.iceServers       = defaultIceServers();
+        this.iceServers       = iceServers; //defaultIceServers();
         this.pcConstraints    = defaultPcConstraints();
         this.videoConstraints = defaultVideoConstraints();
         this.audioConstraints = defaultAudioConstraints();
-        addIceServers(iceServers);
+//        addIceServers(iceServers);
     }
 
     /**

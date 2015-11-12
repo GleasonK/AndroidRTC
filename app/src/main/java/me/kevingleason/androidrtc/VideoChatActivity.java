@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -32,15 +33,19 @@ import org.webrtc.VideoRendererGui;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import me.kevingleason.androidrtc.adapters.ChatAdapter;
 import me.kevingleason.androidrtc.adt.ChatMessage;
+import me.kevingleason.androidrtc.servers.XirSysRequest;
 import me.kevingleason.androidrtc.util.Constants;
 import me.kevingleason.androidrtc.util.LogRTCListener;
 import me.kevingleason.pnwebrtc.PnPeer;
 import me.kevingleason.pnwebrtc.PnRTCClient;
+import me.kevingleason.pnwebrtc.PnSignalingParams;
 
 /**
  * This chat will begin/subscribe to a video chat.
@@ -69,6 +74,7 @@ public class VideoChatActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_chat);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         Bundle extras = getIntent().getExtras();
         if (extras == null || !extras.containsKey(Constants.USER_NAME)) {
@@ -89,7 +95,6 @@ public class VideoChatActivity extends ListActivity {
         mChatAdapter = new ChatAdapter(this, ll);
         mChatList.setAdapter(mChatAdapter);
 
-
         // First, we initiate the PeerConnectionFactory with our application context and some options.
         PeerConnectionFactory.initializeAndroidGlobals(
                 this,  // Context
@@ -100,6 +105,10 @@ public class VideoChatActivity extends ListActivity {
 
         PeerConnectionFactory pcFactory = new PeerConnectionFactory();
         this.pnRTCClient = new PnRTCClient(Constants.PUB_KEY, Constants.SUB_KEY, this.username);
+        List<PeerConnection.IceServer> servers = getXirSysIceServers();
+        if (!servers.isEmpty()){
+            this.pnRTCClient.setSignalParams(new PnSignalingParams());
+        }
 
         // Returns the number of cams & front/back face device name
         int camNumber = VideoCapturerAndroid.getDeviceCount();
@@ -223,6 +232,18 @@ public class VideoChatActivity extends ListActivity {
         if (this.backPressedThread != null)
             this.backPressedThread.interrupt();
         super.onBackPressed();
+    }
+
+    public List<PeerConnection.IceServer> getXirSysIceServers(){
+        List<PeerConnection.IceServer> servers = new ArrayList<PeerConnection.IceServer>();
+        try {
+            servers = new XirSysRequest().execute().get();
+        } catch (InterruptedException e){
+            e.printStackTrace();
+        }catch (ExecutionException e){
+            e.printStackTrace();
+        }
+        return servers;
     }
 
     public void connectToUser(String user) {

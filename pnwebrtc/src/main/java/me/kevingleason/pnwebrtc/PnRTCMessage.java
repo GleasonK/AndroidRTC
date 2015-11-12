@@ -42,6 +42,9 @@ public class PnRTCMessage extends JSONObject {
     public PnRTCMessage(JSONObject json){
         super();
         try {
+            if (json==null){
+                json = new JSONObject("{error:1}");
+            }
             this.put(JSON_MESSAGE, json);
         } catch (JSONException e){
             throw new RuntimeException("Invalid JSON Payload");
