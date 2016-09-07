@@ -88,7 +88,7 @@ public class PnSignalingParams {
     private static MediaConstraints defaultPcConstraints(){
         MediaConstraints pcConstraints = new MediaConstraints();
         pcConstraints.optional.add(new MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "true"));
-        pcConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "false"));
+        pcConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
         pcConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
         return pcConstraints;
     }
