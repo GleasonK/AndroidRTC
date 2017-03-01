@@ -9,6 +9,10 @@ This means that you can now create video chatting applications natively on Andro
 
 [__Get it now!__][PnWebRTC]
 
+_NOTE:_ The following demo uses the PubNub Android WebRTC SDK for signaling to transfer the metadata and establish the peer-to-peer connection. Once the connection is established, the video and voice runs on public Google STUN/TURN servers.
+
+Keep in mind, PubNub can provide the signaling for WebRTC, and requires you to combine it with a hosted WebRTC solution. For more detail on what PubNub does, and what PubNub doesn’t do with WebRTC, check out this article: https://support.pubnub.com/support/solutions/articles/14000043715-does-pubnub-provide-webrtc-and-video-chat-
+
 ## The AndroidRTC Example App
 
 This app shows how to accomplish signling on a standby channel to coordinate users, then hop into a video chat and use the PnWebRTC API for signaling. You can even make a call to the AndroidRTC App [from the web interface](http://kevingleason.me/AndroidRTC).
