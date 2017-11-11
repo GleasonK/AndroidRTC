@@ -1,3 +1,4 @@
+
 apply plugin: 'com.android.application'
 
 android {
@@ -30,4 +31,7 @@ dependencies {
     compile 'com.pubnub:pubnub-android:3.7.4'
     compile 'io.pristine:libjingle:9694@aar'
     compile project(':pnwebrtc')
+}
+android {
+    useLibrary 'org.apache.http.legacy'
 }
